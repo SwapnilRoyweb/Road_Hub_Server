@@ -27,6 +27,7 @@ async function run() {
         //await client.connect();
 
         const userCollection = client.db("Road_Hub").collection("users");
+        const itemCollection = client.db("Road_Hub").collection("items");
 
         // users
         app.get('/users', async (req, res) => {
@@ -45,6 +46,26 @@ async function run() {
             }
 
             const result = await userCollection.insertOne(user);
+            console.log(user);
+            res.send(result);
+        })
+
+        // RoadHub items
+        app.get('/items', async (req, res) => {
+            const result = await itemCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/items', async (req, res) => {
+            const item = req.body;
+
+            const query = {name : item.name};
+            const existingItem = await itemCollection.findOne(query);
+            if(existingItem){
+                return res.send({message: 'Item already exist'})
+            }
+
+            const result = await itemCollection.insertOne(item);
             res.send(result);
         })
 
