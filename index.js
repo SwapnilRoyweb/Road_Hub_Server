@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ad0f77m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -39,11 +39,11 @@ async function run() {
         app.post('/users', async (req, res) => {
             const user = req.body;
 
-            const query = {email: user.email};
+            const query = { email: user.email };
             const existingUser = await userCollection.findOne(query);
             console.log(existingUser);
-            if(existingUser){
-                return res.send({message : 'user already exist'})
+            if (existingUser) {
+                return res.send({ message: 'user already exist' })
             }
 
             const result = await userCollection.insertOne(user);
@@ -60,13 +60,39 @@ async function run() {
         app.post('/items', async (req, res) => {
             const item = req.body;
 
-            const query = {name : item.name};
+            const query = { name: item.name };
             const existingItem = await itemCollection.findOne(query);
-            if(existingItem){
-                return res.send({message: 'Item already exist'})
+            if (existingItem) {
+                return res.send({ message: 'Item already exist' })
             }
 
             const result = await itemCollection.insertOne(item);
+            res.send(result);
+        })
+
+        app.patch('/items/:id/join', async (req, res) => {
+            const id = req.params.id;
+            const update = req.body;
+
+            const comment = update.comment;
+            const name = update.name;
+            const email = update.email;
+
+            const newData = {
+                comment: comment,
+                name: name,
+                email: email
+            }
+
+            console.log(update)
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $push: {
+                    joinedData : newData
+                }
+            }
+
+            const result = await itemCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
@@ -81,6 +107,9 @@ async function run() {
             const result = await joinedItemsCollection.insertOne(joinedUser);
             res.send(result);
         })
+
+        // Comments
+        // app.get()
 
         // Send a ping to confirm a successful connection
         //await client.db("admin").command({ ping: 1 });
