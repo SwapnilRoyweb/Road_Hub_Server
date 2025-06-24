@@ -28,6 +28,7 @@ async function run() {
 
         const userCollection = client.db("Road_Hub").collection("users");
         const itemCollection = client.db("Road_Hub").collection("items");
+        const joinedItemsCollection = client.db("Road_Hub").collection("joinedItems");
 
         // users
         app.get('/users', async (req, res) => {
@@ -66,6 +67,18 @@ async function run() {
             }
 
             const result = await itemCollection.insertOne(item);
+            res.send(result);
+        })
+
+        // upvote routes
+        app.get('/joins', async (req, res) => {
+            const result = await joinedItemsCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/joins', async (req, res) => {
+            const joinedUser = req.body;
+            const result = await joinedItemsCollection.insertOne(joinedUser);
             res.send(result);
         })
 
