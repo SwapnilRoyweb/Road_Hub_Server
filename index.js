@@ -119,6 +119,27 @@ async function run() {
             res.send(result);
         });
 
+        app.patch('/items/:id/edit-comment', async (req, res) => {
+            const id = req.params.id;
+            const previousCommentUser = req.body;
+
+            const previousComment = previousCommentUser.comment;
+            const userName = previousCommentUser.name;
+            const userEmail = previousCommentUser.email;
+            const newComment = previousCommentUser.newComment;
+
+            const filter = {_id: new ObjectId(id),
+                joinedData : {$eleMatch : {previousComment, userEmail}}
+            };
+
+            const updateDoc = {
+                $set: {"joinedData.$.comment" : newComment}
+            }
+
+            const result = await itemCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
         // upvote routes
         app.get('/joins', async (req, res) => {
             const result = await joinedItemsCollection.find().toArray();
