@@ -84,17 +84,40 @@ async function run() {
                 email: email
             }
 
-            console.log(update)
+            // console.log(update)
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $push: {
-                    joinedData : newData
+                    joinedData: newData
                 }
             }
 
             const result = await itemCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
+
+        app.patch('/items/:id/remove-comment', async (req, res) => {
+            const id = req.params.id;
+            const deleteComment = req.body;
+
+            const comment = deleteComment.comment;
+            const name = deleteComment.name;
+            const email = deleteComment.email;
+
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $pull: {
+                    joinedData: {
+                        comment: comment,
+                        name : name,
+                        email: email
+                    }
+                }
+            };
+
+            const result = await itemCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
 
         // upvote routes
         app.get('/joins', async (req, res) => {
