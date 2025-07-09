@@ -70,6 +70,14 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/items/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id : new ObjectId(id)};
+            
+            const result = await itemCollection.findOne(filter);
+            res.send(result);
+        })
+
         app.patch('/items/:id/join', async (req, res) => {
             const id = req.params.id;
             const update = req.body;
